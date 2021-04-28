@@ -6,7 +6,7 @@ import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class MySQLServer(host: String, port: Int, username: String, password: String) : SQLServer(host, port, username, password) {
+class MySQLServer(host: String, port: Int, username: String, password: String) : SQLServer(host, port, username) {
     override val sHost: String
         get() = host
     override val sPort: Int

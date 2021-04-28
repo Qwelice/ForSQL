@@ -1,4 +1,5 @@
 import dbworking.*
+import java.io.IOException
 
 class DBCommander {
     private val container = HashMap<String, Any>()
@@ -63,7 +64,7 @@ class DBCommander {
             Communicator.writeLine("Для данной команды требуется подключение к серверу")
             return
         }
-        val server = container["server"] as MySQLServer
+        val server = container["server"] as SQLServer
         if(!server.isConnected){
             Communicator.writeLine("Отсутствует подключение к серверу :(")
             return
@@ -80,7 +81,7 @@ class DBCommander {
             Communicator.writeLine("Для данной команды требуется подключение к серверу")
             return
         }
-        val server = container["server"] as MySQLServer
+        val server = container["server"] as SQLServer
         if(!server.isConnected){
             Communicator.writeLine("Отсутствует подключение к серверу :(")
             return
@@ -97,7 +98,7 @@ class DBCommander {
             Communicator.writeLine("Для данной команды требуется подключение к серверу")
             return
         }
-        val server = container["server"] as MySQLServer
+        val server = container["server"] as SQLServer
         if(!server.isConnected){
             Communicator.writeLine("Отсутствует подключение к серверу :(")
             return
@@ -111,7 +112,7 @@ class DBCommander {
 
     private fun stop(){
         if(container.containsKey("server")){
-            val server = container["server"] as MySQLServer
+            val server = container["server"] as SQLServer
             server.closeConnection()
         }
     }
@@ -211,9 +212,13 @@ class DBCommander {
         val data = container["data"] as DataWorker
         val dbh = container["dbh"] as DBHandler
         val pth = Communicator.readLine("Введите путь к файлу .xlsx: ")
-        tabs.getDataFrom(pth)
-        tabs.loadDataTo(dbh)
-        data.getDataFrom(pth)
-        data.loadDataTo(dbh)
+        try {
+            tabs.getDataFrom(pth)
+            tabs.loadDataTo(dbh)
+            data.getDataFrom(pth)
+            data.loadDataTo(dbh)
+        }catch (ex: IOException){
+            Communicator.writeLine("Не удалось найти файл!")
+        }
     }
 }
