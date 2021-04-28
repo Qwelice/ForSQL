@@ -7,4 +7,5 @@ interface DBHandler {
     fun makeConnection(fromTab: String, fromField: String, toTab: String, toField: String)
     fun insertData(tabName: String, fields: String, values: String)
     fun displayDBs() : String
+    fun deleteDataBase(dbName: String)
 }

@@ -6,16 +6,15 @@ import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class MySQLServer(private var host: String = "localhost", private var port: Int = 3306,
-    private var username: String = "root", private var password: String = "root") : ServerHandler {
-    val sHost: String
+class MySQLServer(host: String, port: Int, username: String, password: String) : SQLServer(host, port, username, password) {
+    override val sHost: String
         get() = host
-    val sPort: Int
+    override val sPort: Int
         get() = port
     private var connection: Connection? = null
-    private val urlData: String
+    override val urlData: String
         get() = "jdbc:mysql://$host:$port/?serverTimezone=UTC"
-    val isConnected: Boolean
+    override val isConnected: Boolean
         get() = if(connection != null) connection!!.isValid(1000) else false
 
     init {
@@ -27,22 +26,6 @@ class MySQLServer(private var host: String = "localhost", private var port: Int 
         }catch (ex: SQLException){
             Communicator.writeLine("Не удалось подключиться :(")
         }
-    }
-
-    fun resetUsername(newUsername: String){
-        username = newUsername
-    }
-
-    fun resetPassword(newPassword: String){
-        password = newPassword
-    }
-
-    fun resetHost(newHost: String){
-        host = newHost
-    }
-
-    fun resetPort(newPort: Int){
-        port = newPort
     }
 
     override fun connect(): Boolean {

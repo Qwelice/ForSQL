@@ -4,10 +4,10 @@ import Communicator
 import java.lang.StringBuilder
 
 
-class DBHelper(private val server: ServerHandler) : DBHandler {
+class DBHelper(private val server: SQLServer) : DBHandler {
 
     override fun createDataBase(dbName: String) {
-        server.execute("CREATE DATABASE `$dbName`")
+        server.execute("CREATE DATABASE IF NOT EXISTS `$dbName`")
         Communicator.writeLine("База данных `$dbName` успешно создана!")
     }
 
@@ -17,7 +17,7 @@ class DBHelper(private val server: ServerHandler) : DBHandler {
     }
 
     override fun createTable(tabName: String, fields: String) {
-        server.execute("CREATE TABLE `$tabName`($fields)")
+        server.execute("CREATE TABLE IF NOT EXISTS `$tabName`($fields)")
         Communicator.writeLine("Таблица `$tabName` успешно создана!")
     }
 
@@ -36,5 +36,9 @@ class DBHelper(private val server: ServerHandler) : DBHandler {
             sb.append(dbs.getString(1) + "\n")
         }
         return sb.toString().trim()
+    }
+
+    override fun deleteDataBase(dbName: String) {
+        server.execute("DROP DATABASE IF EXISTS `$dbName`")
     }
 }

@@ -5,22 +5,19 @@ import Communicator
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.IOException
 import java.lang.StringBuilder
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class ExcelTableWorker : DataWorker {
     private val tables = HashMap<String, String>()
 
     override fun getDataFrom(path: String) {
-        var wb: XSSFWorkbook
-        var pth = path.trim()
-        while (true){
-            try {
-                wb = XSSFWorkbook(pth)
-                break
-            }catch (ex: IOException){
-                Communicator.writeLine("По данному пути не существует нужного файла")
-                pth = Communicator.readLine("Введите путь к файлу: ").trim()
-            }
+        val wb: XSSFWorkbook
+        val pth = path.trim()
+        if(!Files.exists(Paths.get(pth)) || !Files.isRegularFile(Paths.get(pth))){
+            throw IOException()
         }
+        wb = XSSFWorkbook(pth)
         val sb = StringBuilder()
         wb.sheetIterator().forEach {
             sb.clear()
@@ -41,11 +38,9 @@ class ExcelTableWorker : DataWorker {
             return
         }
         val dbh = source as DBHandler
-        Communicator.writeLine("Для каждого поля таблиц выберите необходимые настройки:")
-        tables.keys.forEach {
-            Communicator.writeLine("$it : ${tables[it]}")
-        }
+
         tables.keys.forEach { tabName ->
+            Communicator.writeLine("\n|Вы работаете с таблицей `$tabName`|")
             val fields = correctFields(tables[tabName].toString().split(";").toList())
             dbh.createTable(tabName, fields)
         }
@@ -65,12 +60,17 @@ class ExcelTableWorker : DataWorker {
             this["DNN"] = "DATE NOT NULL"
             this["DN"] = "DATE NULL"
         }
+        Communicator.writeLine("\nДля каждого поля таблицы выберите необходимые настройки:")
+        attributes.keys.forEach {
+            Communicator.writeLine("$it : ${attributes[it]}")
+        }
         val sb = StringBuilder()
         val primary = mutableListOf<String>()
         fields.forEach {
             sb.append("`$it` ")
             while (true){
                 try {
+                    Communicator.writeLine("\n--Настройка поля `$it`--")
                     val attrID = Communicator.readLine("Введите ID нужного набора: ").trim().toUpperCase()
                     if(attributes.keys.contains(attrID)){
                        val attr = attributes[attrID].toString()
@@ -82,6 +82,7 @@ class ExcelTableWorker : DataWorker {
                         sb.append("$attr, ")
                         break
                     }
+                    throw Exception()
                 }catch (ex: Exception){
                     Communicator.writeLine("Данного набора не существует")
                 }
